@@ -1,18 +1,323 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-  <title>WEB1 - Welcome</title>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>YFL Mission Planner / Vehicle Control</title>
+  <style>
+    :root {
+      --bg: #0d1220;
+      --panel: #141c2f;
+      --panel-alt: #111827;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --line: #334155;
+      --accent: #22d3ee;
+      --ok: #34d399;
+      --warn: #fbbf24;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
+      background: radial-gradient(circle at top, #18233f, var(--bg));
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .dashboard {
+      max-width: 1280px;
+      margin: 0 auto;
+      border: 1px solid var(--line);
+      background: rgba(17, 24, 39, 0.95);
+      box-shadow: 0 16px 35px rgba(0, 0, 0, 0.35);
+    }
+
+    .header,
+    .top-bar,
+    .bottom-bar,
+    .status {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .header {
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: #0f172a;
+    }
+
+    .top-bar {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .top-bar strong { color: var(--text); }
+    .top-bar .link { color: var(--ok); }
+    .top-bar .armed { color: #f87171; }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr 1.1fr;
+      border-bottom: 1px solid var(--line);
+      min-height: 420px;
+    }
+
+    .panel {
+      padding: 16px;
+      border-right: 1px solid var(--line);
+    }
+
+    .panel:last-child { border-right: 0; }
+    .panel h3 {
+      margin: 0 0 14px;
+      font-size: 15px;
+      color: var(--accent);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .section-title {
+      margin: 18px 0 8px;
+      color: var(--muted);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .mode-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .pill {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: center;
+      border-radius: 6px;
+      background: var(--panel);
+      font-size: 13px;
+    }
+
+    .pill.active {
+      border-color: #0ea5e9;
+      background: #0f2944;
+      color: #7dd3fc;
+      font-weight: 600;
+    }
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
+      color: #cbd5e1;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .flow {
+      background: var(--panel-alt);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      line-height: 1.85;
+      font-size: 14px;
+      color: #cbd5e1;
+    }
+
+    .flow .arrow {
+      color: var(--accent);
+      font-weight: 700;
+      padding: 0 6px;
+    }
+
+    .output-bars {
+      margin-top: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }
+
+    .bar {
+      height: 10px;
+      border-radius: 10px;
+      background: #1f2937;
+      border: 1px solid #374151;
+      overflow: hidden;
+    }
+
+    .bar span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, #06b6d4, #22d3ee);
+    }
+
+    .bottom-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      background: #0f172a;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      color: var(--text);
+      background: var(--panel);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .primary { border-color: #2563eb; }
+    .danger { border-color: #dc2626; }
+
+    .status {
+      border-bottom: 0;
+      font-size: 14px;
+      color: #dbeafe;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 960px) {
+      .main-grid { grid-template-columns: 1fr; }
+      .panel { border-right: 0; border-bottom: 1px solid var(--line); }
+      .panel:last-child { border-bottom: 0; }
+    }
+  </style>
 </head>
 <body>
-  <h1><a href="index.html">WEB</a></h1>
-  <ol>
-    <li><a href="1.html">HTML</a></li>
-    <li><a href="2.html">CSS</a></li>
-    <li><a href="3.html">JavaScript</a></li>
-  </ol>
-  <h2>WEB</h2>
-  <p>The World Wide Web (abbreviated WWW or the Web) is an information space where documents and other web resources are identified by Uniform Resource Locators (URLs), interlinked by hypertext links, and can be accessed via the Internet.[1] English scientist Tim Berners-Lee invented the World Wide Web in 1989. He wrote the first web browser computer program in 1990 while employed at CERN in Switzerland.[2][3] The Web browser was released outside of CERN in 1991, first to other research institutions starting in January 1991 and to the general public on the Internet in August 1991.
-  </p>
+  <main class="dashboard">
+    <div class="header">YFL Mission Planner / Vehicle Control</div>
+
+    <div class="top-bar">
+      <span>Vehicle: <strong>Quad-X</strong></span>
+      <span>FC: <strong>MP427</strong></span>
+      <span>Control Mode: <strong>AUTO</strong></span>
+      <span>Armed: <strong class="armed">NO</strong></span>
+      <span>Link: <strong class="link">CONNECTED</strong></span>
+    </div>
+
+    <section class="main-grid">
+      <article class="panel">
+        <h3>Left Panel</h3>
+
+        <div class="section-title">Control Mode</div>
+        <div class="mode-grid">
+          <div class="pill">Manual</div>
+          <div class="pill">Stabilize</div>
+          <div class="pill">Altitude</div>
+          <div class="pill">Loiter</div>
+          <div class="pill active">Auto</div>
+          <div class="pill">RTL</div>
+        </div>
+
+        <div class="section-title">Controller Stack</div>
+        <ul>
+          <li>Position PID</li>
+          <li>Velocity PID</li>
+          <li>Attitude PID</li>
+          <li>Rate PID</li>
+          <li>Mixer / Allocator</li>
+          <li>Gimbal Driver</li>
+          <li>Payload Driver</li>
+        </ul>
+      </article>
+
+      <article class="panel">
+        <h3>Center Control Bus</h3>
+        <div class="flow">
+          Mission Cmd <span class="arrow">↓</span><br>
+          Position / Velocity Setpoint <span class="arrow">↓</span><br>
+          Attitude Controller <span class="arrow">↓</span><br>
+          Rate Controller <span class="arrow">↓</span><br>
+          Mixer <span class="arrow">↓</span><br>
+          ESC / Servo / Gimbal Output
+        </div>
+
+        <div class="section-title">Live Output Bars</div>
+        <div class="output-bars">
+          <div>
+            <div class="bar-label"><span>Motor 1</span><span>43%</span></div>
+            <div class="bar"><span style="width:43%"></span></div>
+          </div>
+          <div>
+            <div class="bar-label"><span>Motor 2</span><span>41%</span></div>
+            <div class="bar"><span style="width:41%"></span></div>
+          </div>
+          <div>
+            <div class="bar-label"><span>Motor 3</span><span>44%</span></div>
+            <div class="bar"><span style="width:44%"></span></div>
+          </div>
+          <div>
+            <div class="bar-label"><span>Motor 4</span><span>40%</span></div>
+            <div class="bar"><span style="width:40%"></span></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel">
+        <h3>Right Panel</h3>
+
+        <div class="section-title">Selected Controller</div>
+        <ul>
+          <li>Controller: Position PID</li>
+        </ul>
+
+        <div class="section-title">Gains</div>
+        <ul>
+          <li>P / I / D</li>
+          <li>Feedforward</li>
+          <li>Output Limit</li>
+          <li>Deadband</li>
+        </ul>
+
+        <div class="section-title">Actuator Mapping</div>
+        <ul>
+          <li>Motor 1 ~ 4</li>
+          <li>Gimbal yaw / pitch / roll</li>
+          <li>Payload trigger</li>
+        </ul>
+      </article>
+    </section>
+
+    <div class="bottom-bar">
+      <button class="primary">Arm</button>
+      <button class="danger">Disarm</button>
+      <button>Calibrate</button>
+      <button>PID Tune</button>
+      <button>Motor Test</button>
+      <button>Servo Test</button>
+      <button>Log</button>
+      <button>Save Profile</button>
+    </div>
+
+    <div class="status">
+      <span>roll: +1.2</span>
+      <span>pitch: -0.4</span>
+      <span>yaw: 182°</span>
+      <span>alt: 32.4m</span>
+      <span>throttle: 41%</span>
+      <span>vibration: LOW</span>
+    </div>
+  </main>
 </body>
 </html>
