@@ -1,18 +1,313 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-  <title>WEB1 - Welcome</title>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>YFL Mission Planner / Path Definition</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-2: #1f2937;
+      --line: #334155;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #22c55e;
+      --btn: #0b1220;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      background: linear-gradient(180deg, #0b1120, #0f172a);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .planner {
+      max-width: 1400px;
+      margin: 0 auto;
+      border: 1px solid var(--line);
+      background: rgba(2, 6, 23, 0.85);
+      backdrop-filter: blur(2px);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35);
+    }
+
+    .frame-title {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      background: #0b1326;
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--line);
+      flex-wrap: wrap;
+      background: #111827;
+    }
+
+    .field {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 14px;
+      padding: 6px 10px;
+      border: 1px solid #374151;
+      background: #0b1220;
+      border-radius: 8px;
+    }
+
+    .value {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .status {
+      margin-left: auto;
+      font-weight: 700;
+      color: #86efac;
+      border-color: #166534;
+      background: rgba(22, 101, 52, 0.15);
+    }
+
+    .main {
+      display: grid;
+      grid-template-columns: 280px 1fr 320px;
+      min-height: 520px;
+    }
+
+    .panel,
+    .map {
+      padding: 16px;
+      border-right: 1px solid var(--line);
+    }
+
+    .right-panel {
+      border-right: 0;
+      border-left: 1px solid var(--line);
+      background: #0f172a;
+    }
+
+    .section-title {
+      margin: 0 0 12px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #cbd5e1;
+    }
+
+    .mode-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      border: 1px solid #475569;
+      background: var(--btn);
+      color: var(--text);
+      border-radius: 8px;
+      font-size: 13px;
+      padding: 8px;
+      text-align: center;
+    }
+
+    .btn.active {
+      border-color: #16a34a;
+      background: rgba(22, 163, 74, 0.18);
+      color: #bbf7d0;
+    }
+
+    .list {
+      border: 1px solid #334155;
+      border-radius: 8px;
+      background: #0b1220;
+      padding: 10px;
+    }
+
+    .list-item {
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #cbd5e1;
+    }
+
+    .list-item + .list-item { margin-top: 5px; }
+    .list-item.selected { background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.35); }
+
+    .map {
+      background: radial-gradient(circle at top, #1d4ed8 0%, #111827 30%, #0b1220 100%);
+    }
+
+    .canvas {
+      height: 100%;
+      min-height: 488px;
+      border: 1px solid #3b82f6;
+      border-radius: 12px;
+      background:
+        linear-gradient(rgba(148,163,184,.13) 1px, transparent 1px) 0 0/40px 40px,
+        linear-gradient(90deg, rgba(148,163,184,.13) 1px, transparent 1px) 0 0/40px 40px,
+        linear-gradient(180deg, rgba(15,23,42,.55), rgba(15,23,42,.9));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .path { position: absolute; inset: 0; }
+
+    .hint {
+      position: absolute;
+      left: 16px;
+      top: 14px;
+      color: #bfdbfe;
+      font-size: 12px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      background: rgba(15,23,42,.75);
+      border: 1px solid rgba(59,130,246,.45);
+      border-radius: 6px;
+      padding: 6px 8px;
+    }
+
+    .props {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .prop {
+      font-size: 12px;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 8px;
+      color: #cbd5e1;
+      background: #0b1220;
+    }
+
+    .prop b { display: block; color: #e2e8f0; margin-bottom: 4px; }
+
+    .bottom-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      border-top: 1px solid var(--line);
+      padding: 12px;
+      background: #111827;
+    }
+
+    .action {
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: 1px solid #475569;
+      background: #0b1220;
+      color: #e2e8f0;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .03em;
+    }
+
+    .action.primary {
+      border-color: #22c55e;
+      color: #bbf7d0;
+      background: rgba(22, 163, 74, 0.22);
+    }
+  </style>
 </head>
 <body>
-  <h1><a href="index.html">WEB</a></h1>
-  <ol>
-    <li><a href="1.html">HTML</a></li>
-    <li><a href="2.html">CSS</a></li>
-    <li><a href="3.html">JavaScript</a></li>
-  </ol>
-  <h2>WEB</h2>
-  <p>The World Wide Web (abbreviated WWW or the Web) is an information space where documents and other web resources are identified by Uniform Resource Locators (URLs), interlinked by hypertext links, and can be accessed via the Internet.[1] English scientist Tim Berners-Lee invented the World Wide Web in 1989. He wrote the first web browser computer program in 1990 while employed at CERN in Switzerland.[2][3] The Web browser was released outside of CERN in 1991, first to other research institutions starting in January 1991 and to the general public on the Internet in August 1991.
-  </p>
+  <main class="planner">
+    <header class="frame-title">YFL Mission Planner / Path Definition</header>
+
+    <section class="top-bar" aria-label="Top Bar">
+      <div class="field">Mission: <span class="value">New Mission</span></div>
+      <div class="field">Vehicle: <span class="value">Quad</span></div>
+      <div class="field">Mode: <span class="value">Survey</span></div>
+      <div class="field">Map: <span class="value">2D/3D</span></div>
+      <div class="field status">Status: READY</div>
+    </section>
+
+    <section class="main">
+      <aside class="panel left-panel">
+        <h2 class="section-title">Mission Path Mode</h2>
+        <div class="mode-grid">
+          <div class="btn active">Survey</div>
+          <div class="btn">Patrol</div>
+          <div class="btn">Inspect</div>
+          <div class="btn">Transit</div>
+          <div class="btn">Orbit</div>
+          <div class="btn">Return</div>
+        </div>
+
+        <h2 class="section-title">Waypoint / Zone List</h2>
+        <div class="list">
+          <div class="list-item selected">WP-01 • 37.7749, -122.4194 • 120m</div>
+          <div class="list-item">WP-02 • 37.7760, -122.4172 • 135m</div>
+          <div class="list-item">WP-03 • 37.7774, -122.4155 • 135m</div>
+          <div class="list-item">Zone-A • No-Fly Radius 90m</div>
+        </div>
+      </aside>
+
+      <section class="map" aria-label="Center Map / Canvas">
+        <div class="canvas">
+          <div class="hint">Top-down mission map · grid / route / geofence</div>
+          <svg class="path" viewBox="0 0 900 520" preserveAspectRatio="none" role="img" aria-label="Mission path overlay">
+            <defs>
+              <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+                <polygon points="0 0, 10 4, 0 8" fill="#22c55e"></polygon>
+              </marker>
+            </defs>
+            <circle cx="180" cy="130" r="58" fill="none" stroke="#60a5fa" stroke-dasharray="6 4" stroke-width="2"></circle>
+            <circle cx="650" cy="300" r="90" fill="rgba(239,68,68,.08)" stroke="#ef4444" stroke-dasharray="8 6" stroke-width="2"></circle>
+            <polygon points="560,90 760,140 705,260 520,220" fill="rgba(250,204,21,.1)" stroke="#facc15" stroke-width="2"></polygon>
+            <polyline points="120,400 240,320 360,260 470,210 600,240 730,210" fill="none" stroke="#22c55e" stroke-width="4" marker-mid="url(#arrow)" marker-end="url(#arrow)"></polyline>
+            <circle cx="120" cy="400" r="8" fill="#22c55e"></circle>
+            <circle cx="240" cy="320" r="8" fill="#22c55e"></circle>
+            <circle cx="360" cy="260" r="8" fill="#22c55e"></circle>
+            <circle cx="470" cy="210" r="8" fill="#22c55e"></circle>
+            <circle cx="600" cy="240" r="8" fill="#22c55e"></circle>
+            <circle cx="730" cy="210" r="8" fill="#22c55e"></circle>
+            <line x1="360" y1="260" x2="430" y2="175" stroke="#38bdf8" stroke-width="2"></line>
+          </svg>
+        </div>
+      </section>
+
+      <aside class="panel right-panel">
+        <h2 class="section-title">Selected Object</h2>
+        <div class="list" style="margin-bottom:12px;">
+          <div class="list-item">Type: <strong>Waypoint</strong></div>
+          <div class="list-item">ID: <strong>WP-01</strong></div>
+        </div>
+        <div class="props">
+          <div class="prop"><b>Lat / Lng / Alt</b>37.7749<br>-122.4194<br>120m</div>
+          <div class="prop"><b>Speed / Yaw / Hold</b>8 m/s<br>145°<br>4 s</div>
+          <div class="prop"><b>Action / Camera</b>Survey<br>4K / 24fps</div>
+          <div class="prop"><b>Gimbal / Tolerance</b>-28°<br>1.5m</div>
+        </div>
+      </aside>
+    </section>
+
+    <footer class="bottom-bar" aria-label="Bottom Action Bar">
+      <button class="action">ADD WP</button>
+      <button class="action">DELETE</button>
+      <button class="action">UNDO</button>
+      <button class="action">REDO</button>
+      <button class="action">AUTO SMOOTH</button>
+      <button class="action">VALIDATE</button>
+      <button class="action">SIM PREVIEW</button>
+      <button class="action">EXPORT</button>
+      <button class="action primary">SAVE</button>
+    </footer>
+  </main>
 </body>
 </html>
