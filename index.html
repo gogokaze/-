@@ -1,18 +1,62 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-  <title>WEB1 - Welcome</title>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>YFL Mission Planner</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+    }
+
+    .card {
+      width: min(700px, 92vw);
+      background: #111827;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 28px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    h1 {
+      margin: 0 0 20px;
+      font-size: 1.8rem;
+      color: #f8fafc;
+    }
+
+    .flow {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 10px;
+      font-size: 1.1rem;
+    }
+
+    .flow li::before {
+      content: "\2192 ";
+      color: #38bdf8;
+      font-weight: bold;
+      margin-right: 4px;
+    }
+  </style>
 </head>
 <body>
-  <h1><a href="index.html">WEB</a></h1>
-  <ol>
-    <li><a href="1.html">HTML</a></li>
-    <li><a href="2.html">CSS</a></li>
-    <li><a href="3.html">JavaScript</a></li>
-  </ol>
-  <h2>WEB</h2>
-  <p>The World Wide Web (abbreviated WWW or the Web) is an information space where documents and other web resources are identified by Uniform Resource Locators (URLs), interlinked by hypertext links, and can be accessed via the Internet.[1] English scientist Tim Berners-Lee invented the World Wide Web in 1989. He wrote the first web browser computer program in 1990 while employed at CERN in Switzerland.[2][3] The Web browser was released outside of CERN in 1991, first to other research institutions starting in January 1991 and to the general public on the Internet in August 1991.
-  </p>
+  <main class="card">
+    <h1>YFL Mission Planner — Mission Planning</h1>
+    <ul class="flow">
+      <li>Path Definition</li>
+      <li>Autonomy Stack</li>
+      <li>Vehicle Control</li>
+      <li>Execution</li>
+      <li>Telemetry Feedback</li>
+    </ul>
+  </main>
 </body>
 </html>
