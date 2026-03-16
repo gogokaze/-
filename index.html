@@ -1,18 +1,466 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-  <title>WEB1 - Welcome</title>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>YFL Mission Operations System</title>
+  <style>
+    :root {
+      --bg: #0a1220;
+      --panel: #121f34;
+      --panel-2: #172742;
+      --accent: #4fd1c5;
+      --warn: #f6ad55;
+      --danger: #fc8181;
+      --ok: #68d391;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --border: #2b3f60;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+      background: radial-gradient(circle at top, #13233f, var(--bg));
+      color: var(--text);
+    }
+    header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(10, 18, 32, 0.85);
+      position: sticky;
+      top: 0;
+      backdrop-filter: blur(6px);
+      z-index: 3;
+    }
+    h1 { margin: 0; font-size: 1.2rem; }
+    .grid {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 1rem;
+      padding: 1rem;
+    }
+    .panel {
+      background: rgba(18, 31, 52, 0.93);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+    .workflow button {
+      width: 100%;
+      margin-bottom: 0.5rem;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      text-align: left;
+      padding: 0.7rem;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .workflow button.active { border-color: var(--accent); color: var(--accent); }
+    .muted { color: var(--muted); }
+    .content-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1rem;
+    }
+    .section { display: none; }
+    .section.active { display: block; }
+    .row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.7rem; }
+    input, select, textarea, button {
+      background: #0d1a30;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.45rem 0.55rem;
+    }
+    button.primary { background: #123657; border-color: #2e6aa7; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th, td { border-bottom: 1px solid var(--border); padding: 0.45rem; text-align: left; }
+    .badge { padding: 0.2rem 0.4rem; border-radius: 20px; font-size: 0.75rem; }
+    .ok { background: #163a2a; color: var(--ok); }
+    .warn { background: #403117; color: var(--warn); }
+    .danger { background: #411f25; color: var(--danger); }
+    .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
+    .card { border: 1px solid var(--border); border-radius: 10px; padding: 0.7rem; background: #101d33; min-height: 130px; }
+    ul { margin: 0.4rem 0 0; padding-left: 1rem; }
+    @media (max-width: 1100px) {
+      .grid, .content-grid { grid-template-columns: 1fr; }
+      .cards { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
-  <h1><a href="index.html">WEB</a></h1>
-  <ol>
-    <li><a href="1.html">HTML</a></li>
-    <li><a href="2.html">CSS</a></li>
-    <li><a href="3.html">JavaScript</a></li>
-  </ol>
-  <h2>WEB</h2>
-  <p>The World Wide Web (abbreviated WWW or the Web) is an information space where documents and other web resources are identified by Uniform Resource Locators (URLs), interlinked by hypertext links, and can be accessed via the Internet.[1] English scientist Tim Berners-Lee invented the World Wide Web in 1989. He wrote the first web browser computer program in 1990 while employed at CERN in Switzerland.[2][3] The Web browser was released outside of CERN in 1991, first to other research institutions starting in January 1991 and to the general public on the Internet in August 1991.
-  </p>
+<header>
+  <h1>YFL Operator Cockpit · Mission Operations System</h1>
+  <span id="utcClock" class="muted"></span>
+</header>
+
+<div class="grid">
+  <aside class="panel workflow">
+    <h3>6-Step Mission Workflow</h3>
+    <button class="step active" data-step="planning">1. Mission Planning</button>
+    <button class="step" data-step="path">2. Path Definition</button>
+    <button class="step" data-step="autonomy">3. Autonomy Stack</button>
+    <button class="step" data-step="vehicle">4. Vehicle Control</button>
+    <button class="step" data-step="execution">5. Execution</button>
+    <button class="step" data-step="telemetry">6. Telemetry Feedback</button>
+    <p class="muted">Operational entities: Vehicle, Waypoint, GeoFence, AutonomyProfile, ControlProfile, ExecutionRun, TelemetryPacket, AlertEvent, MissionLog.</p>
+  </aside>
+
+  <main class="content-grid">
+    <section class="panel">
+      <div id="planning" class="section active">
+        <h3>Mission Planning</h3>
+        <div class="row">
+          <input id="missionName" placeholder="Mission name" />
+          <select id="missionPriority"><option>Standard</option><option>Urgent</option></select>
+          <button class="primary" id="createMission">Create Mission</button>
+        </div>
+        <table>
+          <thead><tr><th>Mission</th><th>Status</th><th>Vehicle</th><th>Updated</th></tr></thead>
+          <tbody id="missionTable"></tbody>
+        </table>
+      </div>
+
+      <div id="path" class="section">
+        <h3>Path Definition · Waypoint Editor</h3>
+        <div class="row">
+          <input id="wpLat" placeholder="Latitude" />
+          <input id="wpLon" placeholder="Longitude" />
+          <input id="wpAlt" placeholder="Altitude m" />
+          <button class="primary" id="addWaypoint">Add Waypoint</button>
+        </div>
+        <table>
+          <thead><tr><th>#</th><th>Lat</th><th>Lon</th><th>Alt</th><th>Actions</th></tr></thead>
+          <tbody id="waypointTable"></tbody>
+        </table>
+      </div>
+
+      <div id="autonomy" class="section">
+        <h3>Autonomy Stack</h3>
+        <div class="row">
+          <select id="autonomyProfile"></select>
+          <button class="primary" id="applyAutonomy">Apply Profile</button>
+        </div>
+        <p id="autonomyInfo" class="muted"></p>
+      </div>
+
+      <div id="vehicle" class="section">
+        <h3>Vehicle Control</h3>
+        <div class="row">
+          <select id="vehicleSelect"></select>
+          <select id="controlProfile"></select>
+          <button class="primary" id="bindVehicle">Bind Vehicle + Control Profile</button>
+        </div>
+        <p id="bindingState" class="muted"></p>
+      </div>
+
+      <div id="execution" class="section">
+        <h3>Execution</h3>
+        <div class="row">
+          <button class="primary" id="cmdStart">Start Run</button>
+          <button id="cmdHold">Hold</button>
+          <button id="cmdResume">Resume</button>
+          <button id="cmdAbort">Abort</button>
+        </div>
+        <p id="runStatus" class="muted"></p>
+        <table>
+          <thead><tr><th>Time</th><th>Command</th><th>State</th><th>Run ID</th></tr></thead>
+          <tbody id="commandTable"></tbody>
+        </table>
+      </div>
+
+      <div id="telemetry" class="section">
+        <h3>Telemetry Feedback</h3>
+        <h4>Telemetry Packets</h4>
+        <table><thead><tr><th>Time</th><th>Vehicle</th><th>Mode</th><th>Battery</th><th>Speed</th></tr></thead><tbody id="telemetryTable"></tbody></table>
+        <h4>Alert Events</h4>
+        <ul id="alertList"></ul>
+        <h4>Mission Logs</h4>
+        <ul id="logList"></ul>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h3>YFL Operator Cockpit</h3>
+      <div class="cards">
+        <div class="card"><strong>Active Missions</strong><ul id="activeMissions"></ul></div>
+        <div class="card"><strong>Alert Stream</strong><ul id="alertStream"></ul></div>
+        <div class="card"><strong>Vehicle Status</strong><ul id="vehicleStatus"></ul></div>
+        <div class="card"><strong>Recent Runs</strong><ul id="recentRuns"></ul></div>
+        <div class="card"><strong>Mission History</strong><ul id="missionHistory"></ul></div>
+        <div class="card"><strong>Operator Notes</strong>
+          <textarea id="operatorNotes" rows="4" placeholder="Capture operational context..."></textarea>
+          <button class="primary" id="saveNote">Save Note</button>
+          <ul id="notesList"></ul>
+        </div>
+      </div>
+      <p class="muted" id="aiReady"></p>
+    </section>
+  </main>
+</div>
+
+<script>
+  const store = {
+    missions: [{ id: 'MIS-101', name: 'Harbor Patrol', status: 'Planned', vehicleId: 'VEH-2', updatedAt: now() }],
+    vehicles: [
+      { id: 'VEH-1', name: 'Aquila-01', status: 'Ready', battery: 87 },
+      { id: 'VEH-2', name: 'Aquila-02', status: 'Online', battery: 72 }
+    ],
+    waypoints: [
+      { id: 'WP-1', lat: 37.8021, lon: -122.4184, alt: 120 },
+      { id: 'WP-2', lat: 37.8062, lon: -122.4103, alt: 140 }
+    ],
+    geofences: [{ id: 'GF-1', name: 'Bay Corridor', type: 'Polygon', points: 6 }],
+    autonomyProfiles: [
+      { id: 'AP-1', name: 'Survey-Precision', behaviorTree: 'BT-SCAN', collisionAvoidance: true },
+      { id: 'AP-2', name: 'Transit-Fast', behaviorTree: 'BT-TRANSIT', collisionAvoidance: true }
+    ],
+    controlProfiles: [
+      { id: 'CP-1', name: 'Conservative PID', maxSpeed: 14, failSafe: 'RTL' },
+      { id: 'CP-2', name: 'Aggressive PID', maxSpeed: 22, failSafe: 'Hold' }
+    ],
+    executionRuns: [],
+    telemetryPackets: [],
+    alertEvents: [{ id: 'AL-1', severity: 'warn', message: 'Wind gust threshold near limit', ts: now() }],
+    missionLogs: [{ id: 'LOG-1', message: 'Mission system booted', ts: now() }],
+    notes: [],
+    binding: { vehicleId: null, controlProfileId: null, autonomyProfileId: null },
+    selectedMission: 'MIS-101'
+  };
+
+  let activeRunId = null;
+
+  function now() { return new Date().toISOString().replace('T', ' ').slice(0, 19) + 'Z'; }
+  function byId(arr, id) { return arr.find((x) => x.id === id); }
+
+  function renderAll() {
+    renderMissionTable();
+    renderWaypoints();
+    renderProfiles();
+    renderVehicles();
+    renderExecution();
+    renderTelemetry();
+    renderCockpit();
+    renderAIReadiness();
+  }
+
+  function renderMissionTable() {
+    const body = document.getElementById('missionTable');
+    body.innerHTML = store.missions.map((m) => {
+      const v = byId(store.vehicles, m.vehicleId);
+      return `<tr><td>${m.id} · ${m.name}</td><td>${m.status}</td><td>${v ? v.name : 'Unbound'}</td><td>${m.updatedAt}</td></tr>`;
+    }).join('');
+  }
+
+  function renderWaypoints() {
+    const body = document.getElementById('waypointTable');
+    body.innerHTML = store.waypoints.map((wp, i) => `<tr>
+      <td>${i + 1}</td><td>${wp.lat}</td><td>${wp.lon}</td><td>${wp.alt}</td>
+      <td><button onclick="removeWaypoint('${wp.id}')">Delete</button></td></tr>`).join('');
+  }
+
+  function renderProfiles() {
+    const ap = document.getElementById('autonomyProfile');
+    ap.innerHTML = store.autonomyProfiles.map((p) => `<option value="${p.id}">${p.name}</option>`).join('');
+    const cp = document.getElementById('controlProfile');
+    cp.innerHTML = store.controlProfiles.map((p) => `<option value="${p.id}">${p.name}</option>`).join('');
+  }
+
+  function renderVehicles() {
+    const vs = document.getElementById('vehicleSelect');
+    vs.innerHTML = store.vehicles.map((v) => `<option value="${v.id}">${v.name}</option>`).join('');
+    const b = store.binding;
+    if (b.vehicleId && b.controlProfileId) {
+      const v = byId(store.vehicles, b.vehicleId);
+      const c = byId(store.controlProfiles, b.controlProfileId);
+      document.getElementById('bindingState').textContent = `Bound ${v.name} with ${c.name}.`;
+    }
+  }
+
+  function renderExecution() {
+    const status = activeRunId ? byId(store.executionRuns, activeRunId).status : 'Idle';
+    document.getElementById('runStatus').textContent = `Run status: ${status}`;
+    const table = document.getElementById('commandTable');
+    table.innerHTML = store.executionRuns.flatMap((run) => run.commands.map((c) =>
+      `<tr><td>${c.ts}</td><td>${c.command}</td><td>${c.state}</td><td>${run.id}</td></tr>`)).join('');
+  }
+
+  function renderTelemetry() {
+    document.getElementById('telemetryTable').innerHTML = store.telemetryPackets.map((t) =>
+      `<tr><td>${t.ts}</td><td>${t.vehicleId}</td><td>${t.mode}</td><td>${t.battery}%</td><td>${t.speed} m/s</td></tr>`).join('');
+    document.getElementById('alertList').innerHTML = store.alertEvents.map((a) =>
+      `<li><span class="badge ${a.severity === 'critical' ? 'danger' : 'warn'}">${a.severity}</span> ${a.ts} · ${a.message}</li>`).join('');
+    document.getElementById('logList').innerHTML = store.missionLogs.map((l) => `<li>${l.ts} · ${l.message}</li>`).join('');
+  }
+
+  function renderCockpit() {
+    const active = store.missions.filter((m) => ['Armed', 'Running', 'Planned'].includes(m.status));
+    document.getElementById('activeMissions').innerHTML = active.map((m) => `<li>${m.id} · ${m.name} (${m.status})</li>`).join('');
+    document.getElementById('alertStream').innerHTML = store.alertEvents.slice(-5).reverse().map((a) => `<li>${a.ts} · ${a.message}</li>`).join('');
+    document.getElementById('vehicleStatus').innerHTML = store.vehicles.map((v) => `<li>${v.name} · ${v.status} · ${v.battery}%</li>`).join('');
+    document.getElementById('recentRuns').innerHTML = store.executionRuns.slice(-5).reverse().map((r) => `<li>${r.id} · ${r.status} · ${r.startedAt}</li>`).join('');
+    document.getElementById('missionHistory').innerHTML = store.missions.slice().reverse().map((m) => `<li>${m.updatedAt} · ${m.id} ${m.status}</li>`).join('');
+    document.getElementById('notesList').innerHTML = store.notes.slice(-3).reverse().map((n) => `<li>${n.ts} · ${n.text}</li>`).join('');
+  }
+
+  function renderAIReadiness() {
+    const payload = buildAIAgentContext();
+    document.getElementById('aiReady').textContent = `AI-ready context: ${payload.telemetryPackets} telemetry packets, ${payload.alertEvents} alerts, ${payload.missionLogs} logs, ${payload.executionRuns} runs.`;
+  }
+
+  function buildAIAgentContext() {
+    return {
+      telemetryPackets: store.telemetryPackets.length,
+      alertEvents: store.alertEvents.length,
+      missionLogs: store.missionLogs.length,
+      executionRuns: store.executionRuns.length,
+      latestAlert: store.alertEvents[store.alertEvents.length - 1]?.message || null,
+      latestRun: store.executionRuns[store.executionRuns.length - 1]?.id || null
+    };
+  }
+
+  function pushLog(message) {
+    store.missionLogs.push({ id: `LOG-${store.missionLogs.length + 1}`, message, ts: now() });
+  }
+
+  function pushAlert(message, severity = 'warn') {
+    store.alertEvents.push({ id: `AL-${store.alertEvents.length + 1}`, message, severity, ts: now() });
+  }
+
+  function pushTelemetry(mode) {
+    const vehicleId = store.binding.vehicleId || 'UNBOUND';
+    const vehicle = byId(store.vehicles, vehicleId) || { battery: 0 };
+    store.telemetryPackets.push({
+      id: `TP-${store.telemetryPackets.length + 1}`,
+      vehicleId,
+      mode,
+      battery: Math.max(15, vehicle.battery - Math.floor(Math.random() * 3)),
+      speed: (Math.random() * 18).toFixed(1),
+      ts: now()
+    });
+  }
+
+  function removeWaypoint(id) {
+    store.waypoints = store.waypoints.filter((wp) => wp.id !== id);
+    pushLog(`Waypoint ${id} removed from mission path.`);
+    renderAll();
+  }
+  window.removeWaypoint = removeWaypoint;
+
+  document.querySelectorAll('.step').forEach((button) => button.addEventListener('click', () => {
+    document.querySelectorAll('.step').forEach((s) => s.classList.remove('active'));
+    document.querySelectorAll('.section').forEach((s) => s.classList.remove('active'));
+    button.classList.add('active');
+    document.getElementById(button.dataset.step).classList.add('active');
+  }));
+
+  document.getElementById('createMission').onclick = () => {
+    const name = document.getElementById('missionName').value.trim();
+    if (!name) return;
+    const id = `MIS-${100 + store.missions.length + 1}`;
+    store.missions.push({ id, name, status: 'Planned', vehicleId: null, updatedAt: now() });
+    pushLog(`Mission ${id} created.`);
+    document.getElementById('missionName').value = '';
+    renderAll();
+  };
+
+  document.getElementById('addWaypoint').onclick = () => {
+    const lat = Number(document.getElementById('wpLat').value);
+    const lon = Number(document.getElementById('wpLon').value);
+    const alt = Number(document.getElementById('wpAlt').value);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon) || !Number.isFinite(alt)) return;
+    const id = `WP-${store.waypoints.length + 1}`;
+    store.waypoints.push({ id, lat, lon, alt });
+    pushLog(`Waypoint ${id} added (${lat}, ${lon}, ${alt}m).`);
+    ['wpLat', 'wpLon', 'wpAlt'].forEach((x) => document.getElementById(x).value = '');
+    renderAll();
+  };
+
+  document.getElementById('applyAutonomy').onclick = () => {
+    const id = document.getElementById('autonomyProfile').value;
+    const p = byId(store.autonomyProfiles, id);
+    store.binding.autonomyProfileId = id;
+    document.getElementById('autonomyInfo').textContent = `${p.name}: ${p.behaviorTree}, CA=${p.collisionAvoidance}`;
+    pushLog(`Autonomy profile ${p.name} applied.`);
+    renderAll();
+  };
+
+  document.getElementById('bindVehicle').onclick = () => {
+    const vehicleId = document.getElementById('vehicleSelect').value;
+    const controlId = document.getElementById('controlProfile').value;
+    store.binding.vehicleId = vehicleId;
+    store.binding.controlProfileId = controlId;
+    const mission = byId(store.missions, store.selectedMission);
+    mission.vehicleId = vehicleId;
+    mission.status = 'Armed';
+    mission.updatedAt = now();
+    pushLog(`Vehicle ${vehicleId} bound with control profile ${controlId}.`);
+    renderAll();
+  };
+
+  function sendCommand(command, state) {
+    if (!activeRunId) return;
+    const run = byId(store.executionRuns, activeRunId);
+    run.status = state;
+    run.commands.push({ command, state, ts: now() });
+    run.updatedAt = now();
+    pushTelemetry(state);
+    pushLog(`Run ${run.id} command: ${command}.`);
+    if (command === 'ABORT') pushAlert(`Run ${run.id} aborted by operator.`, 'critical');
+    renderAll();
+  }
+
+  document.getElementById('cmdStart').onclick = () => {
+    if (!store.binding.vehicleId || !store.binding.controlProfileId) {
+      pushAlert('Cannot start run without vehicle/control binding.', 'critical');
+      renderAll();
+      return;
+    }
+    const run = {
+      id: `RUN-${store.executionRuns.length + 1}`,
+      missionId: store.selectedMission,
+      status: 'Running',
+      startedAt: now(),
+      updatedAt: now(),
+      commands: [{ command: 'START', state: 'Running', ts: now() }]
+    };
+    store.executionRuns.push(run);
+    activeRunId = run.id;
+    const mission = byId(store.missions, store.selectedMission);
+    mission.status = 'Running';
+    mission.updatedAt = now();
+    pushTelemetry('Running');
+    pushLog(`Execution run ${run.id} started.`);
+    renderAll();
+  };
+  document.getElementById('cmdHold').onclick = () => sendCommand('HOLD', 'Hold');
+  document.getElementById('cmdResume').onclick = () => sendCommand('RESUME', 'Running');
+  document.getElementById('cmdAbort').onclick = () => {
+    sendCommand('ABORT', 'Aborted');
+    const mission = byId(store.missions, store.selectedMission);
+    if (mission) { mission.status = 'Aborted'; mission.updatedAt = now(); }
+    activeRunId = null;
+    renderAll();
+  };
+
+  document.getElementById('saveNote').onclick = () => {
+    const text = document.getElementById('operatorNotes').value.trim();
+    if (!text) return;
+    store.notes.push({ text, ts: now() });
+    document.getElementById('operatorNotes').value = '';
+    renderAll();
+  };
+
+  setInterval(() => {
+    document.getElementById('utcClock').textContent = `UTC ${now()}`;
+  }, 1000);
+
+  renderAll();
+</script>
 </body>
 </html>
