@@ -1,18 +1,548 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-  <title>WEB1 - Welcome</title>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>YFL Mission Operations System</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0a0f1a;
+      --panel: #111827;
+      --panel-soft: #172132;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #22d3ee;
+      --good: #10b981;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --border: #23304a;
+      --shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(circle at top, #102036, var(--bg) 48%);
+      color: var(--text);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 2fr 1.2fr;
+      gap: 1rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(22, 31, 50, 0.92), rgba(14, 22, 37, 0.92));
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card h2,
+    .card h3 {
+      margin: 0;
+      font-weight: 650;
+      letter-spacing: 0.01em;
+    }
+
+    .header {
+      grid-column: 1 / -1;
+      padding: 1rem 1.2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .subtle { color: var(--muted); }
+
+    .workflow { padding: 1rem; }
+    .workflow-nav {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(120px, 1fr));
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .step-btn {
+      border: 1px solid var(--border);
+      background: var(--panel-soft);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 0.65rem;
+      text-align: left;
+      cursor: pointer;
+      font-size: 0.82rem;
+      min-height: 68px;
+    }
+
+    .step-btn.active {
+      border-color: var(--accent);
+      background: rgba(34, 211, 238, 0.12);
+    }
+
+    .step-panel { display: none; }
+    .step-panel.active { display: block; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+
+    .surface {
+      background: rgba(17, 24, 39, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.8rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+
+    input, select, textarea, button {
+      width: 100%;
+      padding: 0.55rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid #2a3a58;
+      background: #0f172a;
+      color: var(--text);
+      font-size: 0.84rem;
+    }
+
+    textarea { min-height: 80px; resize: vertical; }
+
+    button {
+      cursor: pointer;
+      background: linear-gradient(180deg, #1f6f96, #174863);
+      border-color: #2c7da6;
+      font-weight: 600;
+    }
+
+    button.secondary {
+      background: #162134;
+      border-color: #2d3f60;
+    }
+
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    li {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.55rem;
+      font-size: 0.83rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.1rem 0.45rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      margin-left: 0.4rem;
+      border: 1px solid transparent;
+    }
+
+    .badge.good { color: #a7f3d0; border-color: #065f46; }
+    .badge.warn { color: #fde68a; border-color: #92400e; }
+    .badge.danger { color: #fecaca; border-color: #7f1d1d; }
+
+    .cockpit {
+      padding: 1rem;
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .cockpit-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.65rem;
+    }
+
+    .small { font-size: 0.75rem; color: var(--muted); }
+
+    @media (max-width: 1140px) {
+      .layout { grid-template-columns: 1fr; }
+      .workflow-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid, .cockpit-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
-  <h1><a href="index.html">WEB</a></h1>
-  <ol>
-    <li><a href="1.html">HTML</a></li>
-    <li><a href="2.html">CSS</a></li>
-    <li><a href="3.html">JavaScript</a></li>
-  </ol>
-  <h2>WEB</h2>
-  <p>The World Wide Web (abbreviated WWW or the Web) is an information space where documents and other web resources are identified by Uniform Resource Locators (URLs), interlinked by hypertext links, and can be accessed via the Internet.[1] English scientist Tim Berners-Lee invented the World Wide Web in 1989. He wrote the first web browser computer program in 1990 while employed at CERN in Switzerland.[2][3] The Web browser was released outside of CERN in 1991, first to other research institutions starting in January 1991 and to the general public on the Internet in August 1991.
-  </p>
+  <main class="layout" id="app">
+    <section class="card header">
+      <div>
+        <h1>YFL Operator Cockpit</h1>
+        <div class="subtle">Mission Operations System with persistent operational entities and execution state</div>
+      </div>
+      <div class="surface" style="min-width:280px">
+        <strong>AI-Ready Ops Architecture</strong>
+        <div class="small">TelemetryPacket + AlertEvent + MissionLog normalized for future AI summarization, alert explanation, and post-mission review generation.</div>
+      </div>
+    </section>
+
+    <section class="card workflow">
+      <h2>Mission Workflow</h2>
+      <p class="small">6-step operational flow retained and upgraded from MVP UI into stateful mission operations.</p>
+      <div class="workflow-nav" id="workflowNav"></div>
+      <div id="workflowPanels"></div>
+    </section>
+
+    <aside class="card cockpit">
+      <h2>Operator Dashboard</h2>
+      <div class="cockpit-grid">
+        <section class="surface"><h3>Active Missions</h3><ul id="activeMissions"></ul></section>
+        <section class="surface"><h3>Alert Stream</h3><ul id="alertStream"></ul></section>
+        <section class="surface"><h3>Vehicle Status</h3><ul id="vehicleStatus"></ul></section>
+        <section class="surface"><h3>Recent Runs</h3><ul id="recentRuns"></ul></section>
+        <section class="surface"><h3>Mission History</h3><ul id="missionHistory"></ul></section>
+        <section class="surface">
+          <h3>Operator Notes</h3>
+          <textarea id="operatorNotes" placeholder="Capture shift hand-off notes, anomalies, and recommendations..."></textarea>
+        </section>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    const state = {
+      steps: [
+        'Mission Planning',
+        'Path Definition',
+        'Autonomy Stack',
+        'Vehicle Control',
+        'Execution',
+        'Telemetry Feedback'
+      ],
+      activeStep: 0,
+      mission: {
+        id: 'MIS-2042',
+        name: 'Coastal Recon Alpha',
+        objective: 'Survey sector C for thermal anomalies',
+        eta: '42m'
+      },
+      entities: {
+        Vehicle: [
+          { id: 'V-17', callsign: 'Raven-17', platform: 'USV', battery: 84, status: 'Ready' },
+          { id: 'V-21', callsign: 'Manta-21', platform: 'UAV', battery: 67, status: 'Standby' }
+        ],
+        Waypoint: [
+          { id: 'WP-01', lat: 37.778, lon: -122.418, alt: 120, action: 'Scan' },
+          { id: 'WP-02', lat: 37.782, lon: -122.41, alt: 110, action: 'Hold' }
+        ],
+        GeoFence: [
+          { id: 'GF-Delta', mode: 'Containment', shape: 'Polygon', points: 6 }
+        ],
+        AutonomyProfile: [
+          { id: 'AP-SafeNav', behavior: 'Collision-aware route planner', confidence: 'High' }
+        ],
+        ControlProfile: [
+          { id: 'CP-Precision', mode: 'Semi-autonomous', maxSpeed: '18kt', authority: 'Operator Override' }
+        ],
+        ExecutionRun: [
+          { id: 'RUN-8821', missionId: 'MIS-2042', vehicleId: 'V-17', status: 'In Progress', cmdCount: 12 }
+        ],
+        TelemetryPacket: [
+          { ts: '10:43:12', vehicle: 'Raven-17', speed: '14kt', heading: '272°', battery: '79%' },
+          { ts: '10:43:17', vehicle: 'Raven-17', speed: '14kt', heading: '271°', battery: '78%' }
+        ],
+        AlertEvent: [
+          { ts: '10:41:08', severity: 'warn', source: 'GeoFence', message: 'Approaching western boundary in 90s' },
+          { ts: '10:42:45', severity: 'danger', source: 'Sensor Bus', message: 'Intermittent thermal feed packet loss' }
+        ],
+        MissionLog: [
+          { ts: '10:40:00', type: 'System', text: 'ExecutionRun RUN-8821 initialized' },
+          { ts: '10:42:00', type: 'Operator', text: 'Manual heading correction +3° issued' }
+        ]
+      },
+      bindings: {
+        selectedVehicleId: 'V-17',
+        selectedControlProfile: 'CP-Precision',
+        selectedAutonomyProfile: 'AP-SafeNav',
+        selectedRunId: 'RUN-8821'
+      },
+      execution: {
+        state: 'Armed',
+        status: 'In Progress',
+        commandQueue: ['SET_HEADING 272', 'SET_SPEED 14', 'SCAN_SECTOR C2']
+      }
+    };
+
+    const workflowPanels = [
+      () => `
+        <section class="step-panel active">
+          <div class="grid">
+            <article class="surface">
+              <h3>Mission Planning</h3>
+              <label>Mission Name</label>
+              <input value="${state.mission.name}" readonly>
+              <label>Objective</label>
+              <textarea readonly>${state.mission.objective}</textarea>
+              <div class="small">Mission entity linked to GeoFence, Waypoint, and execution artifacts.</div>
+            </article>
+            <article class="surface">
+              <h3>Operational Entities</h3>
+              <ul>
+                <li>Vehicle: ${state.entities.Vehicle.length}</li>
+                <li>Waypoint: ${state.entities.Waypoint.length}</li>
+                <li>GeoFence: ${state.entities.GeoFence.length}</li>
+                <li>AutonomyProfile: ${state.entities.AutonomyProfile.length}</li>
+                <li>ControlProfile: ${state.entities.ControlProfile.length}</li>
+                <li>ExecutionRun: ${state.entities.ExecutionRun.length}</li>
+                <li>TelemetryPacket: ${state.entities.TelemetryPacket.length}</li>
+                <li>AlertEvent: ${state.entities.AlertEvent.length}</li>
+                <li>MissionLog: ${state.entities.MissionLog.length}</li>
+              </ul>
+            </article>
+          </div>
+        </section>`,
+      () => `
+        <section class="step-panel active">
+          <div class="grid">
+            <article class="surface">
+              <h3>Path Definition (Waypoint Editor)</h3>
+              <div class="grid">
+                <div><label>Latitude</label><input id="wpLat" placeholder="37.780"></div>
+                <div><label>Longitude</label><input id="wpLon" placeholder="-122.415"></div>
+                <div><label>Altitude (m)</label><input id="wpAlt" placeholder="120"></div>
+                <div><label>Action</label><input id="wpAction" placeholder="Scan"></div>
+              </div>
+              <button id="addWaypoint">Add Waypoint</button>
+            </article>
+            <article class="surface">
+              <h3>Waypoint List</h3>
+              <ul id="waypointList"></ul>
+            </article>
+          </div>
+        </section>`,
+      () => `
+        <section class="step-panel active">
+          <div class="grid">
+            <article class="surface">
+              <h3>Autonomy Stack</h3>
+              <label>AutonomyProfile</label>
+              <select id="autonomyProfileSelect">${state.entities.AutonomyProfile.map(p => `<option value="${p.id}">${p.id} — ${p.behavior}</option>`).join('')}</select>
+              <div class="small">Selected profile tunes planner behaviors, fallback constraints, and explainability traces.</div>
+            </article>
+            <article class="surface">
+              <h3>GeoFence Constraints</h3>
+              <ul>${state.entities.GeoFence.map(g => `<li>${g.id} (${g.mode}, ${g.shape}, points:${g.points})</li>`).join('')}</ul>
+            </article>
+          </div>
+        </section>`,
+      () => `
+        <section class="step-panel active">
+          <div class="grid">
+            <article class="surface">
+              <h3>Vehicle Control Binding</h3>
+              <label>Vehicle</label>
+              <select id="vehicleSelect">${state.entities.Vehicle.map(v => `<option value="${v.id}">${v.callsign} (${v.platform})</option>`).join('')}</select>
+              <label>ControlProfile</label>
+              <select id="controlProfileSelect">${state.entities.ControlProfile.map(p => `<option value="${p.id}">${p.id} — ${p.mode}</option>`).join('')}</select>
+              <button id="bindControl">Bind Vehicle & Control Profile</button>
+            </article>
+            <article class="surface">
+              <h3>Current Control Context</h3>
+              <ul id="controlContext"></ul>
+            </article>
+          </div>
+        </section>`,
+      () => `
+        <section class="step-panel active">
+          <div class="grid">
+            <article class="surface">
+              <h3>Execution Orchestrator</h3>
+              <label>Execution State</label>
+              <input id="execState" value="${state.execution.state}">
+              <label>Run Status</label>
+              <input id="runStatus" value="${state.execution.status}">
+              <button id="updateExecution">Update Execution State</button>
+            </article>
+            <article class="surface">
+              <h3>Command Queue</h3>
+              <label>Issue Command</label>
+              <input id="cmdInput" placeholder="e.g., HOLD_POSITION 30s">
+              <button id="queueCmd" class="secondary">Queue Command</button>
+              <ul id="cmdQueue"></ul>
+            </article>
+          </div>
+        </section>`,
+      () => `
+        <section class="step-panel active">
+          <div class="grid">
+            <article class="surface">
+              <h3>Telemetry Packets</h3>
+              <ul id="telemetryList"></ul>
+            </article>
+            <article class="surface">
+              <h3>Alerts & Mission Logs</h3>
+              <ul id="telemetryAlerts"></ul>
+              <hr style="border-color:#24334f; margin:0.7rem 0">
+              <ul id="missionLogs"></ul>
+            </article>
+          </div>
+        </section>`
+    ];
+
+    function renderWorkflowNav() {
+      const nav = document.getElementById('workflowNav');
+      nav.innerHTML = state.steps.map((step, idx) => `
+        <button class="step-btn ${idx === state.activeStep ? 'active' : ''}" data-step="${idx}">
+          <strong>${idx + 1}. ${step}</strong><br>
+          <span class="small">${idx < state.activeStep ? 'Completed' : idx === state.activeStep ? 'Active' : 'Pending'}</span>
+        </button>
+      `).join('');
+    }
+
+    function renderWorkflowPanel() {
+      const root = document.getElementById('workflowPanels');
+      root.innerHTML = workflowPanels[state.activeStep]();
+      bindPanelActions();
+    }
+
+    function addMissionLog(type, text) {
+      const now = new Date();
+      const ts = now.toTimeString().slice(0, 8);
+      state.entities.MissionLog.unshift({ ts, type, text });
+      state.entities.MissionLog = state.entities.MissionLog.slice(0, 8);
+      renderCockpit();
+    }
+
+    function bindPanelActions() {
+      if (state.activeStep === 1) {
+        const list = document.getElementById('waypointList');
+        list.innerHTML = state.entities.Waypoint.map(w => `<li>${w.id} | lat:${w.lat} lon:${w.lon} alt:${w.alt}m action:${w.action}</li>`).join('');
+        document.getElementById('addWaypoint').onclick = () => {
+          const lat = parseFloat(document.getElementById('wpLat').value);
+          const lon = parseFloat(document.getElementById('wpLon').value);
+          const alt = parseFloat(document.getElementById('wpAlt').value || 0);
+          const action = document.getElementById('wpAction').value || 'Transit';
+          if (Number.isNaN(lat) || Number.isNaN(lon)) return;
+          const id = `WP-${String(state.entities.Waypoint.length + 1).padStart(2, '0')}`;
+          state.entities.Waypoint.push({ id, lat, lon, alt, action });
+          addMissionLog('Operator', `Added waypoint ${id} (${lat}, ${lon})`);
+          renderWorkflowPanel();
+        };
+      }
+
+      if (state.activeStep === 2) {
+        const select = document.getElementById('autonomyProfileSelect');
+        select.value = state.bindings.selectedAutonomyProfile;
+        select.onchange = (e) => {
+          state.bindings.selectedAutonomyProfile = e.target.value;
+          addMissionLog('System', `AutonomyProfile changed to ${e.target.value}`);
+        };
+      }
+
+      if (state.activeStep === 3) {
+        const vs = document.getElementById('vehicleSelect');
+        const cps = document.getElementById('controlProfileSelect');
+        vs.value = state.bindings.selectedVehicleId;
+        cps.value = state.bindings.selectedControlProfile;
+
+        const drawContext = () => {
+          const v = state.entities.Vehicle.find(x => x.id === state.bindings.selectedVehicleId);
+          const cp = state.entities.ControlProfile.find(x => x.id === state.bindings.selectedControlProfile);
+          document.getElementById('controlContext').innerHTML = `
+            <li>Vehicle: ${v.callsign} (${v.id})</li>
+            <li>Control: ${cp.id}, ${cp.mode}</li>
+            <li>Authority: ${cp.authority}</li>
+            <li>Battery: ${v.battery}%</li>
+          `;
+        };
+
+        drawContext();
+        document.getElementById('bindControl').onclick = () => {
+          state.bindings.selectedVehicleId = vs.value;
+          state.bindings.selectedControlProfile = cps.value;
+          addMissionLog('Operator', `Bound ${vs.value} to ${cps.value}`);
+          drawContext();
+          renderCockpit();
+        };
+      }
+
+      if (state.activeStep === 4) {
+        const cmdList = document.getElementById('cmdQueue');
+        const drawQueue = () => cmdList.innerHTML = state.execution.commandQueue.map(c => `<li>${c}</li>`).join('');
+        drawQueue();
+        document.getElementById('queueCmd').onclick = () => {
+          const cmd = document.getElementById('cmdInput').value.trim();
+          if (!cmd) return;
+          state.execution.commandQueue.unshift(cmd);
+          state.execution.commandQueue = state.execution.commandQueue.slice(0, 8);
+          addMissionLog('Operator', `Command queued: ${cmd}`);
+          drawQueue();
+          renderCockpit();
+        };
+        document.getElementById('updateExecution').onclick = () => {
+          state.execution.state = document.getElementById('execState').value;
+          state.execution.status = document.getElementById('runStatus').value;
+          state.entities.ExecutionRun[0].status = state.execution.status;
+          state.entities.ExecutionRun[0].cmdCount = state.execution.commandQueue.length;
+          addMissionLog('System', `Execution state=${state.execution.state}, status=${state.execution.status}`);
+          renderCockpit();
+        };
+      }
+
+      if (state.activeStep === 5) {
+        document.getElementById('telemetryList').innerHTML = state.entities.TelemetryPacket
+          .map(t => `<li>${t.ts} | ${t.vehicle} | ${t.speed} | hdg ${t.heading} | batt ${t.battery}</li>`).join('');
+        document.getElementById('telemetryAlerts').innerHTML = state.entities.AlertEvent
+          .map(a => `<li>${a.ts} <span class="badge ${a.severity}">${a.severity.toUpperCase()}</span> ${a.source}: ${a.message}</li>`).join('');
+        document.getElementById('missionLogs').innerHTML = state.entities.MissionLog
+          .map(l => `<li>${l.ts} [${l.type}] ${l.text}</li>`).join('');
+      }
+    }
+
+    function renderCockpit() {
+      document.getElementById('activeMissions').innerHTML = `
+        <li>${state.mission.id}: ${state.mission.name} <span class="badge good">${state.execution.status}</span></li>
+      `;
+
+      document.getElementById('alertStream').innerHTML = state.entities.AlertEvent
+        .map(a => `<li>${a.ts} <span class="badge ${a.severity}">${a.severity.toUpperCase()}</span> ${a.message}</li>`).join('');
+
+      document.getElementById('vehicleStatus').innerHTML = state.entities.Vehicle
+        .map(v => `<li>${v.callsign} (${v.platform}) — ${v.battery}% <span class="badge ${v.status === 'Ready' ? 'good' : 'warn'}">${v.status}</span></li>`).join('');
+
+      document.getElementById('recentRuns').innerHTML = state.entities.ExecutionRun
+        .map(r => `<li>${r.id} | ${r.vehicleId} | cmds:${r.cmdCount} <span class="badge ${r.status.includes('Progress') ? 'warn' : 'good'}">${r.status}</span></li>`).join('');
+
+      document.getElementById('missionHistory').innerHTML = state.entities.MissionLog
+        .slice(0, 5)
+        .map(log => `<li>${log.ts} [${log.type}] ${log.text}</li>`).join('');
+    }
+
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('.step-btn');
+      if (!btn) return;
+      state.activeStep = Number(btn.dataset.step);
+      render();
+    });
+
+    function render() {
+      renderWorkflowNav();
+      renderWorkflowPanel();
+      renderCockpit();
+    }
+
+    render();
+  </script>
 </body>
 </html>
