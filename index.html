@@ -1,18 +1,550 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-  <title>WEB1 - Welcome</title>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>YFL Mission Operations System</title>
+  <style>
+    :root {
+      --bg: #0a1020;
+      --panel: #111a33;
+      --panel-alt: #16213f;
+      --text: #ecf2ff;
+      --muted: #95a9d6;
+      --accent: #4cc9f0;
+      --ok: #2ec27e;
+      --warn: #f4b942;
+      --danger: #ff6b6b;
+      --border: #2b3a61;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: radial-gradient(circle at top, #111a33, var(--bg) 55%);
+      color: var(--text);
+    }
+
+    header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    h1, h2, h3 { margin: 0; }
+    .muted { color: var(--muted); }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 1rem;
+      padding: 1rem;
+    }
+
+    .panel {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.04)), var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1rem;
+    }
+
+    .cockpit-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+
+    .card {
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.75rem;
+      min-height: 120px;
+    }
+
+    .workflow {
+      display: grid;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .step {
+      border: 1px solid var(--border);
+      background: var(--panel-alt);
+      border-radius: 10px;
+      padding: 0.75rem;
+    }
+
+    .step h3 { font-size: 1rem; margin-bottom: 0.5rem; }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 0.4rem;
+      margin-bottom: 0.4rem;
+    }
+
+    input, select, textarea, button {
+      width: 100%;
+      padding: 0.52rem 0.6rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #0e1730;
+      color: var(--text);
+      font: inherit;
+    }
+
+    textarea { min-height: 78px; resize: vertical; }
+
+    button {
+      background: #1c2a52;
+      cursor: pointer;
+      border-color: #36539a;
+    }
+
+    button:hover { background: #22315f; }
+
+    .pill {
+      display: inline-block;
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      margin-right: 0.25rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .ok { color: var(--ok); }
+    .warn { color: var(--warn); }
+    .danger { color: var(--danger); }
+
+    ul { margin: 0.35rem 0 0; padding-left: 1rem; }
+    li { margin: 0.2rem 0; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .data-title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .footer-note {
+      margin-top: 0.8rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      border-top: 1px dashed var(--border);
+      padding-top: 0.6rem;
+    }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
-  <h1><a href="index.html">WEB</a></h1>
-  <ol>
-    <li><a href="1.html">HTML</a></li>
-    <li><a href="2.html">CSS</a></li>
-    <li><a href="3.html">JavaScript</a></li>
-  </ol>
-  <h2>WEB</h2>
-  <p>The World Wide Web (abbreviated WWW or the Web) is an information space where documents and other web resources are identified by Uniform Resource Locators (URLs), interlinked by hypertext links, and can be accessed via the Internet.[1] English scientist Tim Berners-Lee invented the World Wide Web in 1989. He wrote the first web browser computer program in 1990 while employed at CERN in Switzerland.[2][3] The Web browser was released outside of CERN in 1991, first to other research institutions starting in January 1991 and to the general public on the Internet in August 1991.
-  </p>
+  <header>
+    <div>
+      <h1>YFL Operator Cockpit</h1>
+      <div class="muted">Mission Operations System (MOS) • AI-ready telemetry and review architecture</div>
+    </div>
+    <div>
+      <span class="pill">Ops Mode: Active</span>
+      <span class="pill">Fleet Connected: <span id="fleetCount">0</span></span>
+      <span class="pill">Open Alerts: <span id="openAlertCount">0</span></span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel">
+      <h2>Mission Workflow</h2>
+      <div class="muted">6-step control loop retained and operationalized</div>
+
+      <div class="workflow">
+        <article class="step">
+          <h3>1) Mission Planning</h3>
+          <div class="row">
+            <input id="missionName" placeholder="Mission name" value="Harbor Perimeter Sweep">
+            <input id="missionObjective" placeholder="Objective" value="Inspect and map perimeter zone">
+          </div>
+          <button id="saveMissionPlan">Save Mission Plan</button>
+        </article>
+
+        <article class="step">
+          <h3>2) Path Definition (Waypoint Editor)</h3>
+          <div class="row">
+            <input id="wpLat" type="number" step="0.0001" placeholder="Latitude">
+            <input id="wpLng" type="number" step="0.0001" placeholder="Longitude">
+            <input id="wpAlt" type="number" step="1" placeholder="Altitude m">
+          </div>
+          <div class="row">
+            <select id="wpAction">
+              <option value="TRANSIT">TRANSIT</option>
+              <option value="SCAN">SCAN</option>
+              <option value="HOLD">HOLD</option>
+            </select>
+            <input id="wpHold" type="number" step="1" placeholder="Hold seconds">
+            <button id="addWaypoint">Add Waypoint</button>
+          </div>
+          <div class="row">
+            <input id="gfName" placeholder="GeoFence name" value="Harbor Fence A">
+            <input id="gfRadius" type="number" step="10" placeholder="Radius m" value="400">
+            <button id="setGeoFence">Set GeoFence</button>
+          </div>
+          <div class="data-title">Waypoints</div>
+          <ul id="waypointList"></ul>
+        </article>
+
+        <article class="step">
+          <h3>3) Autonomy Stack</h3>
+          <div class="row">
+            <select id="autonomyProfile"></select>
+            <button id="applyAutonomy">Apply Autonomy Profile</button>
+          </div>
+          <div class="muted" id="autonomySummary"></div>
+        </article>
+
+        <article class="step">
+          <h3>4) Vehicle Control</h3>
+          <div class="row">
+            <select id="vehicleSelect"></select>
+            <select id="controlProfile"></select>
+            <button id="bindVehicleControl">Bind Vehicle + Control</button>
+          </div>
+          <div id="vehicleControlBinding" class="muted"></div>
+        </article>
+
+        <article class="step">
+          <h3>5) Execution</h3>
+          <div class="row">
+            <button id="startRun">Start Run</button>
+            <button id="pauseRun">Pause</button>
+            <button id="abortRun">Abort</button>
+          </div>
+          <div class="row">
+            <input id="commandInput" placeholder="Command (e.g., RTL, HOLD, RESUME)">
+            <button id="sendCommand">Send Command</button>
+          </div>
+          <div id="executionStatus" class="muted"></div>
+        </article>
+
+        <article class="step">
+          <h3>6) Telemetry Feedback</h3>
+          <div class="grid-2">
+            <div>
+              <div class="data-title">Telemetry Packets</div>
+              <ul id="telemetryList"></ul>
+            </div>
+            <div>
+              <div class="data-title">Alerts & Logs</div>
+              <ul id="alertList"></ul>
+              <ul id="logList"></ul>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Operator Cockpit Dashboard</h2>
+      <div class="muted">Live mission awareness across fleet operations</div>
+
+      <div class="cockpit-grid">
+        <article class="card"><h3>Active Missions</h3><ul id="activeMissions"></ul></article>
+        <article class="card"><h3>Alert Stream</h3><ul id="alertStream"></ul></article>
+        <article class="card"><h3>Vehicle Status</h3><ul id="vehicleStatus"></ul></article>
+        <article class="card"><h3>Recent Runs</h3><ul id="recentRuns"></ul></article>
+        <article class="card"><h3>Mission History</h3><ul id="missionHistory"></ul></article>
+        <article class="card">
+          <h3>Operator Notes</h3>
+          <textarea id="operatorNotes" placeholder="Shift notes, anomalies, recommendations..."></textarea>
+          <button id="saveNotes">Save Notes</button>
+          <div id="notesStatus" class="muted"></div>
+        </article>
+      </div>
+
+      <div class="footer-note">
+        AI-ready architecture hooks present: <strong>TelemetryPacket</strong>, <strong>AlertEvent</strong>, <strong>MissionLog</strong>,
+        and <strong>ExecutionRun</strong> can feed future agent services for anomaly summarization, alert explanation,
+        and automated post-mission review generation.
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const state = {
+      mission: {
+        id: "MIS-001",
+        name: "Harbor Perimeter Sweep",
+        objective: "Inspect and map perimeter zone",
+        status: "planned"
+      },
+      vehicles: [
+        { id: "VEH-ALPHA", type: "USV", health: "OK", battery: 88, link: "strong" },
+        { id: "VEH-BRAVO", type: "UAV", health: "WARN", battery: 42, link: "degraded" }
+      ],
+      waypoints: [
+        { id: "WP-1", lat: 37.7749, lng: -122.4194, alt: 15, action: "TRANSIT", holdSec: 0 },
+        { id: "WP-2", lat: 37.7762, lng: -122.4174, alt: 25, action: "SCAN", holdSec: 60 }
+      ],
+      geoFence: { id: "GF-1", name: "Harbor Fence A", radiusM: 400 },
+      autonomyProfiles: [
+        { id: "AUTO-SAFE", behavior: "Conservative obstacle avoidance", fallback: "Return to launch" },
+        { id: "AUTO-AGILE", behavior: "Aggressive tracking", fallback: "Hover and await command" }
+      ],
+      controlProfiles: [
+        { id: "CTRL-NORMAL", maxSpeed: 12, authority: "Operator supervised" },
+        { id: "CTRL-RESTRICTED", maxSpeed: 6, authority: "Safety constrained" }
+      ],
+      selectedAutonomyProfileId: "AUTO-SAFE",
+      selectedVehicleId: "VEH-ALPHA",
+      selectedControlProfileId: "CTRL-NORMAL",
+      executionRun: {
+        id: "RUN-1001",
+        state: "idle",
+        status: "ready",
+        commands: []
+      },
+      telemetryPackets: [],
+      alertEvents: [],
+      missionLogs: [],
+      operatorNotes: ""
+    };
+
+    const byId = (id) => document.getElementById(id);
+
+    const ids = {
+      waypointList: byId("waypointList"),
+      telemetryList: byId("telemetryList"),
+      alertList: byId("alertList"),
+      logList: byId("logList"),
+      autonomyProfile: byId("autonomyProfile"),
+      controlProfile: byId("controlProfile"),
+      vehicleSelect: byId("vehicleSelect")
+    };
+
+    function pushLog(message, level = "info") {
+      const log = {
+        id: `LOG-${Date.now()}`,
+        ts: new Date().toISOString(),
+        level,
+        message
+      };
+      state.missionLogs.unshift(log);
+      state.missionLogs = state.missionLogs.slice(0, 20);
+    }
+
+    function pushAlert(severity, message) {
+      const alert = {
+        id: `ALT-${Date.now()}`,
+        ts: new Date().toISOString(),
+        severity,
+        message,
+        acknowledged: false
+      };
+      state.alertEvents.unshift(alert);
+      state.alertEvents = state.alertEvents.slice(0, 20);
+      pushLog(`Alert raised (${severity}): ${message}`, "warn");
+    }
+
+    function pushTelemetry(data) {
+      const packet = {
+        id: `TEL-${Date.now()}`,
+        ts: new Date().toISOString(),
+        runId: state.executionRun.id,
+        vehicleId: state.selectedVehicleId,
+        ...data
+      };
+      state.telemetryPackets.unshift(packet);
+      state.telemetryPackets = state.telemetryPackets.slice(0, 20);
+    }
+
+    function renderOptions() {
+      ids.autonomyProfile.innerHTML = state.autonomyProfiles.map(p => `<option value="${p.id}">${p.id}</option>`).join("");
+      ids.controlProfile.innerHTML = state.controlProfiles.map(p => `<option value="${p.id}">${p.id}</option>`).join("");
+      ids.vehicleSelect.innerHTML = state.vehicles.map(v => `<option value="${v.id}">${v.id} (${v.type})</option>`).join("");
+
+      ids.autonomyProfile.value = state.selectedAutonomyProfileId;
+      ids.controlProfile.value = state.selectedControlProfileId;
+      ids.vehicleSelect.value = state.selectedVehicleId;
+    }
+
+    function renderWorkflow() {
+      ids.waypointList.innerHTML = state.waypoints
+        .map(w => `<li>${w.id}: ${w.lat.toFixed(4)}, ${w.lng.toFixed(4)} alt ${w.alt}m • ${w.action}${w.holdSec ? ` (${w.holdSec}s)` : ""}</li>`)
+        .join("");
+
+      byId("autonomySummary").textContent = `AutonomyProfile: ${state.selectedAutonomyProfileId} • ${state.autonomyProfiles.find(p => p.id === state.selectedAutonomyProfileId).behavior}`;
+      byId("vehicleControlBinding").textContent = `Vehicle ${state.selectedVehicleId} bound to ControlProfile ${state.selectedControlProfileId}`;
+      byId("executionStatus").textContent = `ExecutionRun ${state.executionRun.id}: state=${state.executionRun.state}, status=${state.executionRun.status}, commands=${state.executionRun.commands.length}`;
+
+      ids.telemetryList.innerHTML = state.telemetryPackets
+        .map(t => `<li>${t.ts.split("T")[1].slice(0, 8)} ${t.vehicleId} spd:${t.speed}kn hdg:${t.heading} batt:${t.battery}%</li>`)
+        .join("") || "<li class='muted'>No telemetry packets yet.</li>";
+
+      ids.alertList.innerHTML = state.alertEvents
+        .map(a => `<li class='${a.severity === "critical" ? "danger" : "warn"}'>${a.severity.toUpperCase()}: ${a.message}</li>`)
+        .join("") || "<li class='muted'>No active alerts.</li>";
+
+      ids.logList.innerHTML = state.missionLogs
+        .slice(0, 6)
+        .map(l => `<li>${l.ts.split("T")[1].slice(0, 8)} ${l.message}</li>`)
+        .join("") || "<li class='muted'>No mission logs yet.</li>";
+    }
+
+    function renderCockpit() {
+      byId("fleetCount").textContent = String(state.vehicles.length);
+      byId("openAlertCount").textContent = String(state.alertEvents.length);
+
+      byId("activeMissions").innerHTML = `<li>${state.mission.id} • ${state.mission.name} • ${state.mission.status}</li>`;
+
+      byId("alertStream").innerHTML = state.alertEvents.slice(0, 5)
+        .map(a => `<li>${a.ts.split("T")[1].slice(0, 8)} ${a.severity.toUpperCase()} - ${a.message}</li>`)
+        .join("") || "<li class='muted'>No alerts in stream.</li>";
+
+      byId("vehicleStatus").innerHTML = state.vehicles
+        .map(v => `<li>${v.id} ${v.health} • batt ${v.battery}% • link ${v.link}</li>`)
+        .join("");
+
+      byId("recentRuns").innerHTML = `<li>${state.executionRun.id} • ${state.executionRun.state} • ${state.executionRun.status}</li>`;
+      byId("missionHistory").innerHTML = state.missionLogs.slice(0, 5)
+        .map(l => `<li>${l.level.toUpperCase()} • ${l.message}</li>`)
+        .join("") || "<li class='muted'>No mission history entries.</li>";
+    }
+
+    function renderAll() {
+      renderWorkflow();
+      renderCockpit();
+    }
+
+    byId("saveMissionPlan").addEventListener("click", () => {
+      state.mission.name = byId("missionName").value || state.mission.name;
+      state.mission.objective = byId("missionObjective").value || state.mission.objective;
+      state.mission.status = "planned";
+      pushLog(`Mission plan updated: ${state.mission.name}`);
+      renderAll();
+    });
+
+    byId("addWaypoint").addEventListener("click", () => {
+      const lat = Number(byId("wpLat").value);
+      const lng = Number(byId("wpLng").value);
+      const alt = Number(byId("wpAlt").value || 10);
+      const action = byId("wpAction").value;
+      const holdSec = Number(byId("wpHold").value || 0);
+
+      if (Number.isNaN(lat) || Number.isNaN(lng)) {
+        pushAlert("warning", "Waypoint rejected: latitude and longitude required.");
+        renderAll();
+        return;
+      }
+
+      const waypoint = {
+        id: `WP-${state.waypoints.length + 1}`,
+        lat,
+        lng,
+        alt,
+        action,
+        holdSec
+      };
+
+      state.waypoints.push(waypoint);
+      pushLog(`Waypoint added: ${waypoint.id} (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+      renderAll();
+    });
+
+    byId("setGeoFence").addEventListener("click", () => {
+      state.geoFence.name = byId("gfName").value || state.geoFence.name;
+      state.geoFence.radiusM = Number(byId("gfRadius").value || state.geoFence.radiusM);
+      pushLog(`GeoFence set: ${state.geoFence.name} radius ${state.geoFence.radiusM}m`);
+      renderAll();
+    });
+
+    ids.autonomyProfile.addEventListener("change", (e) => {
+      state.selectedAutonomyProfileId = e.target.value;
+    });
+
+    byId("applyAutonomy").addEventListener("click", () => {
+      pushLog(`AutonomyProfile applied: ${state.selectedAutonomyProfileId}`);
+      renderAll();
+    });
+
+    ids.vehicleSelect.addEventListener("change", (e) => {
+      state.selectedVehicleId = e.target.value;
+    });
+
+    ids.controlProfile.addEventListener("change", (e) => {
+      state.selectedControlProfileId = e.target.value;
+    });
+
+    byId("bindVehicleControl").addEventListener("click", () => {
+      pushLog(`VehicleControl bound: ${state.selectedVehicleId} + ${state.selectedControlProfileId}`);
+      renderAll();
+    });
+
+    byId("startRun").addEventListener("click", () => {
+      state.executionRun.state = "running";
+      state.executionRun.status = "nominal";
+      state.mission.status = "active";
+      pushLog(`ExecutionRun started: ${state.executionRun.id}`);
+      const vehicle = state.vehicles.find(v => v.id === state.selectedVehicleId);
+      pushTelemetry({ speed: 9, heading: 120, battery: vehicle.battery });
+      renderAll();
+    });
+
+    byId("pauseRun").addEventListener("click", () => {
+      state.executionRun.state = "paused";
+      state.executionRun.status = "operator_hold";
+      pushLog(`ExecutionRun paused: ${state.executionRun.id}`);
+      renderAll();
+    });
+
+    byId("abortRun").addEventListener("click", () => {
+      state.executionRun.state = "aborted";
+      state.executionRun.status = "terminated";
+      state.mission.status = "aborted";
+      pushAlert("critical", "Execution aborted by operator.");
+      renderAll();
+    });
+
+    byId("sendCommand").addEventListener("click", () => {
+      const command = byId("commandInput").value.trim();
+      if (!command) return;
+      state.executionRun.commands.push({ ts: new Date().toISOString(), command });
+      pushLog(`Command issued: ${command}`);
+
+      if (command.toUpperCase() === "RTL") {
+        pushAlert("warning", "Return-to-launch command active.");
+      }
+
+      const vehicle = state.vehicles.find(v => v.id === state.selectedVehicleId);
+      const batteryAfter = Math.max(0, vehicle.battery - 1);
+      vehicle.battery = batteryAfter;
+      pushTelemetry({ speed: 7, heading: 100, battery: batteryAfter });
+
+      byId("commandInput").value = "";
+      renderAll();
+    });
+
+    byId("saveNotes").addEventListener("click", () => {
+      state.operatorNotes = byId("operatorNotes").value;
+      byId("notesStatus").textContent = `Notes saved at ${new Date().toLocaleTimeString()}`;
+      pushLog("Operator notes updated.");
+      renderAll();
+    });
+
+    renderOptions();
+    pushLog("Mission Operations System initialized.");
+    renderAll();
+  </script>
 </body>
 </html>
