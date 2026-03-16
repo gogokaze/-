@@ -1,18 +1,368 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-  <title>WEB1 - Welcome</title>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mission Path Definition</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-2: #1f2937;
+      --line: #374151;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #22d3ee;
+      --accent-2: #38bdf8;
+      --ok: #34d399;
+      --warn: #fbbf24;
+      --danger: #f87171;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at top, #1e293b, var(--bg) 55%);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .shell {
+      width: min(1220px, 100%);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(17, 24, 39, 0.75);
+      backdrop-filter: blur(6px);
+      box-shadow: 0 24px 40px rgba(0,0,0,.4);
+    }
+
+    .title {
+      padding: 14px 18px;
+      background: #0b1220;
+      border-bottom: 1px solid var(--line);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 14px;
+      color: #cbd5e1;
+      font-weight: 700;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 280px 1fr 300px;
+      grid-template-rows: minmax(460px, 62vh) auto;
+    }
+
+    .left, .center, .right, .bottom {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: rgba(17,24,39,.55);
+    }
+
+    .right { border-right: none; }
+    .bottom {
+      grid-column: 1 / -1;
+      border-right: none;
+      border-bottom: none;
+      background: rgba(15,23,42,.8);
+      padding: 14px;
+    }
+
+    .panel-title {
+      margin: 0;
+      padding: 14px 16px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: #cbd5e1;
+      border-bottom: 1px solid var(--line);
+      background: rgba(31,41,55,.4);
+    }
+
+    .section { padding: 14px 16px; border-bottom: 1px solid rgba(55,65,81,.6); }
+    .section:last-child { border-bottom: none; }
+
+    .section h3 {
+      margin: 0 0 12px;
+      font-size: 14px;
+      color: #d1d5db;
+      font-weight: 600;
+    }
+
+    .mode-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .btn {
+      border: 1px solid #4b5563;
+      background: #1f2937;
+      color: #e5e7eb;
+      border-radius: 8px;
+      padding: 10px 8px;
+      font-size: 13px;
+      cursor: default;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .btn.active { border-color: var(--accent); background: rgba(34,211,238,.14); color: #a5f3fc; }
+
+    .wp-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 8px;
+    }
+
+    .wp-list li {
+      border: 1px solid #374151;
+      padding: 9px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(31,41,55,.45);
+    }
+
+    .tag {
+      font-size: 11px;
+      color: #93c5fd;
+      background: rgba(59,130,246,.2);
+      border: 1px solid rgba(147,197,253,.5);
+      border-radius: 999px;
+      padding: 2px 7px;
+    }
+
+    .map {
+      height: 100%;
+      position: relative;
+      background:
+        linear-gradient(to right, rgba(148,163,184,.10) 1px, transparent 1px) 0 0 / 42px 42px,
+        linear-gradient(to bottom, rgba(148,163,184,.10) 1px, transparent 1px) 0 0 / 42px 42px,
+        linear-gradient(170deg, rgba(56,189,248,.12), rgba(17,24,39,.8));
+    }
+
+    .legend {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(15,23,42,.78);
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .path {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .node {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      border: 2px solid #0f172a;
+      background: var(--accent-2);
+      box-shadow: 0 0 0 8px rgba(56,189,248,.12);
+    }
+
+    .node.sel { background: var(--warn); box-shadow: 0 0 0 10px rgba(251,191,36,.16); }
+    .ring {
+      position: absolute;
+      border: 1px dashed rgba(96,165,250,.7);
+      border-radius: 999px;
+      transform: translate(-50%, -50%);
+    }
+
+    .line {
+      position: absolute;
+      height: 2px;
+      background: linear-gradient(to right, #22d3ee, #38bdf8);
+      transform-origin: left center;
+      box-shadow: 0 0 0 1px rgba(56,189,248,.35);
+    }
+
+    .arrow {
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-left: 10px solid var(--ok);
+      transform-origin: center;
+    }
+
+    .fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .field {
+      border: 1px solid #374151;
+      border-radius: 8px;
+      padding: 8px;
+      background: rgba(31,41,55,.5);
+    }
+
+    .field label {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .field div {
+      font-size: 13px;
+      color: #f3f4f6;
+      font-weight: 600;
+    }
+
+    .bottom .actions {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(96px, 1fr));
+      gap: 10px;
+    }
+
+    .action-btn {
+      border: 1px solid #4b5563;
+      border-radius: 8px;
+      padding: 10px 8px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      text-align: center;
+      font-weight: 700;
+      background: #1f2937;
+      color: #e5e7eb;
+    }
+
+    .action-btn.primary { border-color: #22d3ee; color: #a5f3fc; background: rgba(34,211,238,.12); }
+    .action-btn.alert { border-color: #f87171; color: #fecaca; background: rgba(248,113,113,.12); }
+
+    @media (max-width: 980px) {
+      .grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto auto;
+      }
+      .left, .center, .right, .bottom {
+        border-right: none;
+      }
+      .bottom .actions { grid-template-columns: repeat(2, 1fr); }
+      .map { min-height: 340px; }
+    }
+  </style>
 </head>
 <body>
-  <h1><a href="index.html">WEB</a></h1>
-  <ol>
-    <li><a href="1.html">HTML</a></li>
-    <li><a href="2.html">CSS</a></li>
-    <li><a href="3.html">JavaScript</a></li>
-  </ol>
-  <h2>WEB</h2>
-  <p>The World Wide Web (abbreviated WWW or the Web) is an information space where documents and other web resources are identified by Uniform Resource Locators (URLs), interlinked by hypertext links, and can be accessed via the Internet.[1] English scientist Tim Berners-Lee invented the World Wide Web in 1989. He wrote the first web browser computer program in 1990 while employed at CERN in Switzerland.[2][3] The Web browser was released outside of CERN in 1991, first to other research institutions starting in January 1991 and to the general public on the Internet in August 1991.
-  </p>
+  <main class="shell">
+    <header class="title">Path Definition</header>
+    <section class="grid">
+      <aside class="left">
+        <h2 class="panel-title">Left Panel</h2>
+        <div class="section">
+          <h3>Mission Path Mode</h3>
+          <div class="mode-buttons">
+            <div class="btn active">Survey</div>
+            <div class="btn">Patrol</div>
+            <div class="btn">Inspect</div>
+            <div class="btn">Transit</div>
+          </div>
+        </div>
+        <div class="section">
+          <h3>Waypoint List</h3>
+          <ul class="wp-list">
+            <li><span>WP01 Takeoff</span><span class="tag">ARM</span></li>
+            <li><span>WP02 Transit</span><span class="tag">NAV</span></li>
+            <li><span>WP03 Hold</span><span class="tag">LOITER</span></li>
+            <li><span>WP04 ROI</span><span class="tag">CAM</span></li>
+          </ul>
+        </div>
+      </aside>
+
+      <section class="center">
+        <h2 class="panel-title">Center Map / Canvas</h2>
+        <div class="map">
+          <div class="legend">
+            top-down mission map<br>
+            grid / zone / route / no-fly<br>
+            waypoint nodes + path lines<br>
+            heading arrows + buffer rings<br>
+            <br>
+            click to add · drag to move<br>
+            select node to edit<br>
+            right click action menu
+          </div>
+
+          <div class="path">
+            <div class="line" style="left: 17%; top: 72%; width: 24%; transform: rotate(-25deg);"></div>
+            <div class="line" style="left: 38%; top: 56%; width: 20%; transform: rotate(18deg);"></div>
+            <div class="line" style="left: 57%; top: 63%; width: 22%; transform: rotate(-30deg);"></div>
+
+            <div class="ring" style="left: 17%; top: 72%; width: 62px; height: 62px;"></div>
+            <div class="ring" style="left: 40%; top: 56%; width: 74px; height: 74px;"></div>
+            <div class="ring" style="left: 57%; top: 63%; width: 68px; height: 68px;"></div>
+            <div class="ring" style="left: 78%; top: 49%; width: 80px; height: 80px;"></div>
+
+            <div class="node" style="left: 17%; top: 72%;"></div>
+            <div class="node" style="left: 40%; top: 56%;"></div>
+            <div class="node sel" style="left: 57%; top: 63%;"></div>
+            <div class="node" style="left: 78%; top: 49%;"></div>
+
+            <div class="arrow" style="left: 28%; top: 64%; transform: rotate(-24deg);"></div>
+            <div class="arrow" style="left: 49%; top: 59%; transform: rotate(18deg);"></div>
+            <div class="arrow" style="left: 67%; top: 57%; transform: rotate(-29deg);"></div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="right">
+        <h2 class="panel-title">Right Panel</h2>
+        <div class="section">
+          <h3>Selected Waypoint</h3>
+          <div class="fields">
+            <div class="field"><label>Lat</label><div>37.5665</div></div>
+            <div class="field"><label>Lng</label><div>126.9780</div></div>
+            <div class="field"><label>Alt</label><div>110 m</div></div>
+            <div class="field"><label>Speed</label><div>8.0 m/s</div></div>
+            <div class="field"><label>Yaw</label><div>145°</div></div>
+            <div class="field"><label>Hold</label><div>12 s</div></div>
+            <div class="field"><label>Action</label><div>ROI Track</div></div>
+            <div class="field"><label>Camera/Gimbal</label><div>4K · -18°</div></div>
+          </div>
+        </div>
+      </aside>
+
+      <footer class="bottom">
+        <div class="actions">
+          <div class="action-btn primary">Add WP</div>
+          <div class="action-btn alert">Delete</div>
+          <div class="action-btn">Undo</div>
+          <div class="action-btn">Redo</div>
+          <div class="action-btn">Auto Smooth</div>
+          <div class="action-btn">Validate</div>
+          <div class="action-btn primary">Save</div>
+          <div class="action-btn">Sim Preview</div>
+        </div>
+      </footer>
+    </section>
+  </main>
 </body>
 </html>
